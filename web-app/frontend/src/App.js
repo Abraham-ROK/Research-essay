@@ -4,10 +4,10 @@ function App() {
   const [memberData, setmemberData] = useState([])
 
   useEffect (() => {
-    fetch('/members', {
+    fetch('http://localhost:5001/members', {
       'methods' : 'GET',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'applications/json',
         'Authorization': `Bearer`,
       }
     })
