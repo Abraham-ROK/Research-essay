@@ -1,0 +1,21 @@
+version: "3.3"
+
+services:
+
+  backend:
+     image: 0abraham0/backend_image:latest
+     container_name: backend
+     build: ./web-app/backend
+     ports:
+     - "5001:5001"
+   
+
+  frontend:
+     image: 0abraham0/frontend_image:latest
+     container_name: frontend
+     build: ./web-app/frontend
+     ports:
+     - "3001:3000"
+     depends_on:
+       - backend
+     
