@@ -1,23 +1,20 @@
 
 from controllers import app
-# from flask import Flask 
-# from flask_cors import CORS
-# import controller
+
+if __name__ == "__main__":
+    app.run(debug=True,host='0.0.0.0', port=5001)
+
+
+
+# from flask import Flask
 
 # app = Flask(__name__)
 
-# CORS(app)
-
 # @app.route("/")
-# def welcome():
-#     return "Hello Devoteam"
-
-# @app.route("/members")
-# def members():
-#     return {"members": ["Member1", "Member2", "Member3"]}
+# def hello_world():
+#     return "<p>Hello, World!</p>"
 
 
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     # app.run(debug=True,host="localhost", port=5001)
+#     app.run(debug=True,host='0.0.0.0', port=5001)
