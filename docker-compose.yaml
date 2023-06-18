@@ -1,6 +1,7 @@
 version: "3.3"
 
 networks:
+
    testing:
       name: custom_network
       ipam: # ipam = ap address management 
@@ -8,7 +9,7 @@ networks:
          config:
             - subnet: 192.168.92.0/24
    
-   
+
 services:
 
   backend:
