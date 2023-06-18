@@ -1,5 +1,13 @@
 # Devoteam_Project
 
+
+#### cd Research-essay/web-app/backend
+#### python3 -m venv env 
+#### . env/bin/activate  
+#### pip install -r requirements.txt
+#### if you want to kill the virtual environment:
+#### deactivate
+
 #### cd Research-essay/web-app
 #### rm -rf frontend
 #### npx create-react-app frontend 
