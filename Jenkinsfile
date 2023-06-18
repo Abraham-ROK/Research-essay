@@ -6,8 +6,10 @@ pipeline {
 
     stage( 'Checkout Branch Staging') {
       steps {
-        echo '######################'              
-        echo 'Checking-out Branch Staging...'       
+        echo '######################' 
+
+        echo 'Checking-out Branch Staging...'  
+             
         echo '######################'
       }
     }
