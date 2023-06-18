@@ -9,7 +9,7 @@ pipeline {
         echo '######################' 
 
         echo 'Checking-out Branch Staging...'  
-             
+            
         echo '######################'
       }
     }
