@@ -8,7 +8,6 @@ pipeline {
       steps {
         echo '######################' 
         echo 'Checking-out Branch Staging...'  
-            
         echo '######################'
       }
     }
