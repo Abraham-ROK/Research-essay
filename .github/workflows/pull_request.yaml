@@ -40,7 +40,7 @@ jobs:
           pip install -r backend/requirements.txt
 
       - name: Test server.py
-        run: python3 ./server.py
+        run: python3 backend/server.py
 
       # # Install Yarn
       # - name: Install Yarn
