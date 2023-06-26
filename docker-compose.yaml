@@ -1,13 +1,14 @@
 version: "3.3"
 
-networks:
+# networks:
 
-   testing:
-      name: custom_network
-      ipam: # ipam = ap address management 
-         driver: default 
-         config:
-            - subnet: 192.168.92.0/24
+#    traefik:
+#       external:
+#          name: custom_network
+#       ipam: # ipam = ap address management 
+#          driver: default 
+#          config:
+#             - subnet: 192.168.92.0/24
    
 
 services:
@@ -18,16 +19,45 @@ services:
      build: ./web-app/backend
      ports:
        - 5001:5001
-     networks:
-       - testing
+    #  networks:
+    #    - traefik
+     depends_on:
+       - traefik
+     labels:
+       - "traefik.http.routers.backend.rule=Host(`backend.localhost`)"
+
+    #    - "traefik.docker.network=traefik"
+    #    - "traefik.backend=xavki"
+    #    - "traefik.frontend.rule=Host:xavki.localhost" 
+    #    - "traefik.port=5001"
+
+
   frontend:
      image: 0abraham0/frontend_image:latest
      container_name: frontend
      build: ./web-app/frontend
      ports:
        - 3001:3000
-     networks:
-       - testing
+    #  networks:
+    #    - traefik
      depends_on:
        - backend
+       - traefik
+     labels:
+       - "traefik.http.routers.frontend.rule=Host(`frontend.localhost`)"
+  
+  traefik:
+    image: traefik:v3.0
+    container_name: loabalancer
+    command: 
+      - --api.insecure=true 
+      - --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080" 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock 
+      # - /dev/null:/traefik.toml
+    # networks:
+    #   - webgateway
      
