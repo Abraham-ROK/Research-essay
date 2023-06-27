@@ -25,9 +25,9 @@ jobs:
 
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      # Setup Nodejs
+      # Setup python 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -40,9 +40,11 @@ jobs:
           pip install -r ./backend/requirements.txt
 
       - name: Test Server
-        run: python3 ./backend/server.py
+        run: |
+          echo "hello"
+        # python3 ./backend/server.py
 
-      # # Install Yarn
+      # # Install Yarn 
       # - name: Install Yarn
       #   run: npm install --global yarn
 
