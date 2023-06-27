@@ -1,6 +1,6 @@
 FROM node:20.3.0-slim
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY ./package.json ./
 
