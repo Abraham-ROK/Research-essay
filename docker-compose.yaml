@@ -21,6 +21,11 @@ services:
        - 5001:5001
     #  networks:
     #    - traefik
+     volumes:
+       - ./web-app/backend/controllers:/app/controllers:ro # this line sink every file i have in my backend in the folder app for my image and help make a live update of my files
+       - ./web-app/backend/server.py:/app/server.py:ro   # this is called bind volumes 
+                                                        # ":ro" means that my image will read only the files from backend
+
      depends_on:
        - traefik
      labels:
@@ -40,6 +45,8 @@ services:
        - 3001:3000
     #  networks:
     #    - traefik
+     volumes:
+       - ./web-app/frontend/src:/app/src:ro
      depends_on:
        - backend
        - traefik
