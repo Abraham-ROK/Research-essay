@@ -1,15 +1,15 @@
 version: "3.3"
 
-# networks:
+networks:
+  my_network:
+    driver: bridge 
 
-#    traefik:
-#       external:
-#          name: custom_network
-#       ipam: # ipam = ap address management 
-#          driver: default 
-#          config:
-#             - subnet: 192.168.92.0/24
-   
+
+volumes:
+  mongo-data:
+    driver: local 
+    name: "mongo-data"
+
 
 services:
 
@@ -19,15 +19,17 @@ services:
      build: ./web-app/backend
      ports:
        - 5001:5001
-    #  networks:
-    #    - traefik
+     networks:
+       - my_network
      volumes:
-       - ./web-app/backend/controllers:/app/controllers:ro # this line sink every file i have in my backend in the folder app for my image and help make a live update of my files
-       - ./web-app/backend/server.py:/app/server.py:ro   # this is called bind volumes 
-                                                        # ":ro" means that my image will read only the files from backend
-
+       - ./web-app/backend:/app/:ro
+       - /app/env
+      #  - ./web-app/backend/controllers:/app/controllers:ro # this line sink every file i have in my backend in the folder app for my image and help make a live update of my files
+      #  - ./web-app/backend/server.py:/app/server.py:ro   # this is called bind volumes 
+      #                                                   # ":ro" means that my image will read only the files from backend
      depends_on:
        - traefik
+       - Mongo_Database
      labels:
        - "traefik.http.routers.backend.rule=Host(`backend.localhost`)"
 
@@ -40,11 +42,12 @@ services:
   frontend:
      image: 0abraham0/frontend_image:latest
      container_name: frontend
+     stdin_open: true # to keep the container listning to request after startup
      build: ./web-app/frontend
      ports:
        - 3001:3000
-    #  networks:
-    #    - traefik
+     networks:
+       - my_network
      volumes:
        - ./web-app/frontend/src:/app/src:ro
      depends_on:
@@ -53,9 +56,12 @@ services:
      labels:
        - "traefik.http.routers.frontend.rule=Host(`frontend.localhost`)"
   
+
   traefik:
     image: traefik:v3.0
     container_name: loabalancer
+    networks:
+      - my_network
     command: 
       - --api.insecure=true 
       - --providers.docker
@@ -65,6 +71,33 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock 
       # - /dev/null:/traefik.toml
-    # networks:
-    #   - webgateway
+
+  
+  Mongo_Database:
+    image: mongo:4.2.16-bionic
+    container_name: Mongo_Database
+    hostname: for_mongodb_connection
+    environment:
+      - MONGO_INITDB_DATABASE=animal_db
+      - MONGO_INITDB_ROOT_USERNAME=Abraham
+      - MONGO_INITDB_ROOT_PASSWORD=test-password
+    volumes:
+      - mongo-data:/data/db
+      - ./web-app/backend/database/init_db.js:/docker-entrypoint-initdb.d/init_db.js:ro
+    ports:
+      - 27017:27017
+    networks:
+      - my_network
+    
+  # mongo-express: 
+  #   image: mongo-express 
+  #   container_name: mongo-express 
+  #   restart: always
+  #   ports: 
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: Abraham
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: test-password
+  #     ME_CONFIG_MONGODB_URL:mongodb://Abraham: test-password@Mongo_Database:27017/
+
      
