@@ -8,7 +8,7 @@ networks:
 volumes:
   mongo-data:
     driver: local 
-    name: "mongo-data"
+    name: "mongo-data-volumes"
 
 
 services:
@@ -23,13 +23,14 @@ services:
        - my_network
      volumes:
        - ./web-app/backend:/app/:ro
-       - /app/env
+       - /app/v_env
       #  - ./web-app/backend/controllers:/app/controllers:ro # this line sink every file i have in my backend in the folder app for my image and help make a live update of my files
       #  - ./web-app/backend/server.py:/app/server.py:ro   # this is called bind volumes 
       #                                                   # ":ro" means that my image will read only the files from backend
      depends_on:
        - traefik
        - Mongo_Database
+      #  - mongo
      labels:
        - "traefik.http.routers.backend.rule=Host(`backend.localhost`)"
 
@@ -72,32 +73,34 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock 
       # - /dev/null:/traefik.toml
 
-  
   Mongo_Database:
-    image: mongo:4.2.16-bionic
-    container_name: Mongo_Database
+    image: mongo:latest
+    container_name: mongo # container name = mongo is mandatory to be able to make the connection
     hostname: for_mongodb_connection
+    restart: always
     environment:
-      - MONGO_INITDB_DATABASE=animal_db
-      - MONGO_INITDB_ROOT_USERNAME=Abraham
-      - MONGO_INITDB_ROOT_PASSWORD=test-password
-    volumes:
-      - mongo-data:/data/db
-      - ./web-app/backend/database/init_db.js:/docker-entrypoint-initdb.d/init_db.js:ro
+      MONGO_INITDB_ROOT_USERNAME: mongo_user
+      MONGO_INITDB_ROOT_PASSWORD: mongo_user_password
+      # MONGO_INITDB_DATABASE: projectdb
     ports:
       - 27017:27017
+    volumes:
+      - mongo-data:/data/db
     networks:
       - my_network
-    
-  # mongo-express: 
-  #   image: mongo-express 
-  #   container_name: mongo-express 
-  #   restart: always
-  #   ports: 
-  #     - 8081:8081
-  #   environment:
-  #     ME_CONFIG_MONGODB_ADMINUSERNAME: Abraham
-  #     ME_CONFIG_MONGODB_ADMINPASSWORD: test-password
-  #     ME_CONFIG_MONGODB_URL:mongodb://Abraham: test-password@Mongo_Database:27017/
 
-     
+
+  Mongo_Express:
+    image: mongo-express:1.0.0-alpha.4
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 8888:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: mongo_user
+      ME_CONFIG_MONGODB_ADMINPASSWORD: mongo_user_password
+      ME_CONFIG_MONGODB_URL: mongodb://mongo_user:mongo_user_password@Mongo_Database:27017/ # mongodb://mongo_user:mongo_user_password@localhost:27017
+    networks:
+      - my_network
+    depends_on:
+      - Mongo_Database
