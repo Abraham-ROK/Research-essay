@@ -1,4 +1,5 @@
 from controllers import app
+from controllers.database import get_db
 from flask import request, jsonify, render_template, Blueprint, Flask
 import pymongo
 # from pymongo import MongoClient
@@ -18,11 +19,18 @@ import pymongo
 #     db = client["food_db"]
 #     return db
 
-client = pymongo.MongoClient("mongodb://mongo_user:mongo_user_password@Mongo_Database:27017/") # mongodb://mongo_user:mongo_user_password@Mongo_Database:27017/
-                                                                                               # mongodb://localhost:27017/
-db = client["testdb"]
+# client = pymongo.MongoClient("mongodb://mongo_user:mongo_user_password@Mongo_Database:27017/") # mongodb://mongo_user:mongo_user_password@Mongo_Database:27017/
+#                                                                                                # mongodb://localhost:27017/
+# db = client["testdb"]
 
-@app.route("/")
+# def get_db():
+#     mongo_db_client = pymongo.MongoClient("mongodb://mongo_user:mongo_user_password@Mongo_Database:27017/")
+#     db = mongo_db_client["food_db"]
+#     return db
+
+# db = get_db()
+
+@app.route("/home")
 def welcome():
     # return "Hello Devoteam abraham"
     return render_template("index.html")
@@ -44,6 +52,7 @@ def food_data():
 @app.route("/users", methods = ['POST', 'GET'])
 
 def data():
+    db = get_db()
     if request.method == 'POST':
         body= request.json
 
