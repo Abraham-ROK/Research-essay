@@ -1,11 +1,15 @@
 FROM python:3.9-alpine
 
+# RUN mkdir -p workspace
 WORKDIR /app
 
 
 COPY requirements.txt requirements.txt
 
-RUN pip install --upgrade pip
+RUN 
+
+RUN pip install --upgrade pip 
+# RUN pip install pymongo
 
 RUN pip install --no-cache-dir -r requirements.txt
 

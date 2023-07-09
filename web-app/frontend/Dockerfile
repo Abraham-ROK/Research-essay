@@ -1,5 +1,6 @@
 FROM node:20.3.0-slim
 
+# RUN mkdir -p workspace
 WORKDIR /app
 
 COPY ./package.json ./
