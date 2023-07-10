@@ -42,7 +42,7 @@ jobs:
       - name: Test Server
         run: |
           echo "hello"
-          docker compose up --build --remove-orphans
+          docker compose up --build --remove-orphans -d
 
       # # Install Yarn 
       # - name: Install Yarn
