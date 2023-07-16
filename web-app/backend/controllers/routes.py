@@ -1,7 +1,9 @@
 from controllers import app
+from bson import ObjectId
 from controllers.database import get_db
 from flask import request, jsonify, render_template, Blueprint, Flask
 import pymongo
+from datetime import datetime
 # from pymongo import MongoClient
 
 # main=Blueprint("main", __name__)
@@ -39,10 +41,113 @@ def welcome():
 
 @app.route("/foods", methods = ['POST', 'GET'])
 def food_data():
+    db = get_db()
     if request.method == 'POST':
-        return render_template("add.html")
+
+        body= request.json
+        # id = body["firstName"]
+        name = body["Name"]
+        proteins = body["Proteins"]
+        carbs = body["Carbs"]
+        fats = body["Fats"]
+        insertion_date = datetime.now()
+
+        db["Foods"].insert_one({
+            "Name": name,
+            "Proteins": proteins,
+            "Carbs": carbs,
+            "Fats": fats,
+            "Date": insertion_date
+        })
+
+        return jsonify({
+            "status": "Data is posted to MongoDB",
+            "Name": name,
+            "Proteins": proteins,
+            "Carbs": carbs,
+            "Fats": fats,
+            "Date": insertion_date
+        })
+    
+        # return render_template("add.html")
     elif request.method == 'GET':
-        return render_template("view.html")
+
+        all_food_data = db["Foods"].find()
+        all_food_data_json =[]
+        for data in all_food_data:
+            id = data["_id"]
+            name = data["Name"]
+            proteins = data["Proteins"]
+            carbs = data["Carbs"]
+            fats = data["Fats"]
+            insertion_date = data["Date"]
+
+            food_data_dict = {
+                "Id" : str(id),
+                "Name" : name,
+                "Proteins" : proteins,
+                "Carbs" : carbs,
+                "Fats" : fats,
+                "Date": insertion_date
+            }
+
+            all_food_data_json.append(food_data_dict)
+
+        return jsonify(all_food_data_json)
+        # return render_template("view.html")
+    
+@app.route("/foods/<string:id>", methods = ['PUT', 'GET', 'DELETE'])
+def get_one_food_data(id):
+    db = get_db()
+    if request.method == 'GET':
+        food_data = db["Foods"].find_one({"_id":ObjectId(id)})
+        id = food_data["_id"]
+        name = food_data["Name"]
+        proteins = food_data["Proteins"]
+        carbs = food_data["Carbs"]
+        fats = food_data["Fats"]
+        insertion_date = food_data["Date"]
+
+        food_data_dict = {
+            "Id" : str(id),
+            "Name" : name,
+            "Proteins" : proteins,
+            "Carbs" : carbs,
+            "Fats" : fats,
+            "Date": insertion_date
+        }
+        return jsonify(food_data_dict)
+    
+    elif request.method == 'DELETE':
+        db["Foods"].delete_many({"_id":ObjectId(id)})
+        return jsonify({
+            "status": "Data id: "+id+" is deleted"
+        })
+    elif request.method == 'PUT':
+        body= request.json
+        # id = body["firstName"]
+        name = body["Name"]
+        proteins = body["Proteins"]
+        carbs = body["Carbs"]
+        fats = body["Fats"]
+        insertion_date = datetime.now()
+
+        db["Foods"].update_one(
+            {"_id":ObjectId(id)},
+            {
+                "$set":{
+                    "Name": name,
+                    "Proteins": proteins,
+                    "Carbs": carbs,
+                    "Fats": fats,
+                    "Date": insertion_date
+                }
+            }
+        )
+        return jsonify({
+            "status": "Data id: "+id+" is updated"
+        })
+
 
 # @app.route("/members", methods = ['GET'])
 # def members():
