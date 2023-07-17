@@ -1,4 +1,5 @@
 from controllers import app
+from controllers.model import FOOD
 from bson import ObjectId
 from controllers.database import get_db
 from flask import request, jsonify, render_template, Blueprint, Flask
@@ -34,10 +35,9 @@ from datetime import datetime
 
 @app.route("/home")
 def welcome():
-    # return "Hello Devoteam abraham"
-    return render_template("index.html")
+    # return render_template("index.html")
     # return render_template("view.html")
-    # return render_template("add.html")
+    return render_template("add.html")
 
 @app.route("/foods", methods = ['POST', 'GET'])
 def food_data():
@@ -45,28 +45,26 @@ def food_data():
     if request.method == 'POST':
 
         body= request.json
-        # id = body["firstName"]
-        name = body["Name"]
-        proteins = body["Proteins"]
-        carbs = body["Carbs"]
-        fats = body["Fats"]
-        insertion_date = datetime.now()
+
+        food = FOOD(body["Name"],body["Proteins"],body["Carbs"],body["Fats"])
 
         db["Foods"].insert_one({
-            "Name": name,
-            "Proteins": proteins,
-            "Carbs": carbs,
-            "Fats": fats,
-            "Date": insertion_date
+            "Name": food.name,
+            "Proteins": food.proteins,
+            "Carbs": food.carbs,
+            "Fats": food.fats,
+            "Date": food.set_date,
+            "Calories": food.set_calories
         })
 
         return jsonify({
             "status": "Data is posted to MongoDB",
-            "Name": name,
-            "Proteins": proteins,
-            "Carbs": carbs,
-            "Fats": fats,
-            "Date": insertion_date
+            "Name": food.name,
+            "Proteins": food.proteins,
+            "Carbs": food.carbs,
+            "Fats": food.fats,
+            "Date": food.set_date,
+            "Calories": food.set_calories
         })
     
         # return render_template("add.html")
@@ -75,47 +73,42 @@ def food_data():
         all_food_data = db["Foods"].find()
         all_food_data_json =[]
         for data in all_food_data:
+            food = FOOD(data["Name"], data["Proteins"],data["Carbs"],data["Fats"],data["Date"],data["Calories"])
             id = data["_id"]
-            name = data["Name"]
-            proteins = data["Proteins"]
-            carbs = data["Carbs"]
-            fats = data["Fats"]
-            insertion_date = data["Date"]
 
             food_data_dict = {
                 "Id" : str(id),
-                "Name" : name,
-                "Proteins" : proteins,
-                "Carbs" : carbs,
-                "Fats" : fats,
-                "Date": insertion_date
+                "Name" : food.name,
+                "Proteins" : food.proteins,
+                "Carbs" : food.carbs,
+                "Fats" : food.fats,
+                "Date": food.insertion_date,
+                "Calories": food.calories
             }
 
             all_food_data_json.append(food_data_dict)
 
         return jsonify(all_food_data_json)
         # return render_template("view.html")
-    
+
+
 @app.route("/foods/<string:id>", methods = ['PUT', 'GET', 'DELETE'])
 def get_one_food_data(id):
     db = get_db()
     if request.method == 'GET':
         food_data = db["Foods"].find_one({"_id":ObjectId(id)})
         id = food_data["_id"]
-        name = food_data["Name"]
-        proteins = food_data["Proteins"]
-        carbs = food_data["Carbs"]
-        fats = food_data["Fats"]
-        insertion_date = food_data["Date"]
+        food = FOOD(food_data["Name"],food_data["Proteins"],food_data["Carbs"],food_data["Fats"],food_data["Date"],food_data["Calories"])
 
         food_data_dict = {
-            "Id" : str(id),
-            "Name" : name,
-            "Proteins" : proteins,
-            "Carbs" : carbs,
-            "Fats" : fats,
-            "Date": insertion_date
-        }
+                "Id" : str(id),
+                "Name" : food.name,
+                "Proteins" : food.proteins,
+                "Carbs" : food.carbs,
+                "Fats" : food.fats,
+                "Date": food.insertion_date,
+                "Calories": food.calories
+            }
         return jsonify(food_data_dict)
     
     elif request.method == 'DELETE':
@@ -125,62 +118,23 @@ def get_one_food_data(id):
         })
     elif request.method == 'PUT':
         body= request.json
-        # id = body["firstName"]
-        name = body["Name"]
-        proteins = body["Proteins"]
-        carbs = body["Carbs"]
-        fats = body["Fats"]
-        insertion_date = datetime.now()
+        
+        food = FOOD(body["Name"],body["Proteins"],body["Carbs"],body["Fats"])
+  
 
         db["Foods"].update_one(
             {"_id":ObjectId(id)},
             {
                 "$set":{
-                    "Name": name,
-                    "Proteins": proteins,
-                    "Carbs": carbs,
-                    "Fats": fats,
-                    "Date": insertion_date
+                    "Name": food.name,
+                    "Proteins": food.proteins,
+                    "Carbs": food.carbs,
+                    "Fats": food.fats,
+                    "Date": food.set_date,
+                    "Calories": food.set_calories
                 }
             }
         )
         return jsonify({
             "status": "Data id: "+id+" is updated"
         })
-
-
-# @app.route("/members", methods = ['GET'])
-# def members():
-#     return jsonify({"members" : ["Member1", "Member2", "Member3"]})
-
-
-@app.route("/users", methods = ['POST', 'GET'])
-
-def data():
-    db = get_db()
-    if request.method == 'POST':
-        body= request.json
-
-        firstName = body["firstName"]
-        lastName = body["lastName"]
-        emailId = body["emailid"]
-        db["users"].insert_one({
-            "firstName": firstName,
-            "lastName": lastName,
-            "emailid": emailId
-        })
-
-        return jsonify({
-            "status": "Data is posted to MongoDB",
-            "firstName": firstName,
-            "lastName":lastName,
-            "emailid": emailId
-        })
-            
-
-
-# {
-#     "firstName": "John234",
-#     "lastName": "Williamson234",
-#     "emailid": "JohnWilliamso234@gmail.com"
-# }
