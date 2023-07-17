@@ -17,4 +17,6 @@ COPY . .
 
 EXPOSE 5001
 
-CMD [ "python", "server.py", "--reload"]
+ENTRYPOINT [ "python", "server.py", "--reload"]
+
+# CMD locust -f locust.py --host=http://localhost:5001/foods --users=50 --spawn-rate=5 --run-time=1m --headless
