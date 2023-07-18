@@ -14,3 +14,6 @@
 #### npx create-react-app frontend 
 #### git restore frontend
 #### rm -rf frontend/src/index.css &; rm -rf frontend/src/logo.svg &; rm -rf frontend/src/App.test.js &;
+
+# devop; GCP and terraform
+# https://www.youtube.com/watch?v=OXE2a8dqIAI
