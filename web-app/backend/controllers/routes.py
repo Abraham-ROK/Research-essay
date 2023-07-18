@@ -1,6 +1,7 @@
 from controllers import app
 from controllers.model import FOOD
 from bson import ObjectId
+import uuid
 from controllers.database import get_db
 from flask import request, jsonify, render_template, Blueprint, Flask
 import pymongo
@@ -46,9 +47,12 @@ def food_data():
 
         body= request.json
 
-        food = FOOD(body["Name"],body["Proteins"],body["Carbs"],body["Fats"])
+        food_id = str(uuid.uuid4())
+        food = FOOD(body["Name"],body["Proteins"],body["Carbs"],body["Fats"],food_id)
+        
 
         db["Foods"].insert_one({
+            "Food_id": food.id,
             "Name": food.name,
             "Proteins": food.proteins,
             "Carbs": food.carbs,
@@ -59,6 +63,7 @@ def food_data():
 
         return jsonify({
             "status": "Data is posted to MongoDB",
+            "Food_id": food.id,
             "Name": food.name,
             "Proteins": food.proteins,
             "Carbs": food.carbs,
@@ -73,11 +78,12 @@ def food_data():
         all_food_data = db["Foods"].find()
         all_food_data_json =[]
         for data in all_food_data:
-            food = FOOD(data["Name"], data["Proteins"],data["Carbs"],data["Fats"],data["Date"],data["Calories"])
-            id = data["_id"]
+            food = FOOD(data["Name"], data["Proteins"],data["Carbs"],data["Fats"], data["Food_id"], data["Date"],data["Calories"])
+            # id = data["_id"]
 
             food_data_dict = {
-                "Id" : str(id),
+                # "Id" : str(id),
+                "Food_id":food.id,
                 "Name" : food.name,
                 "Proteins" : food.proteins,
                 "Carbs" : food.carbs,
@@ -96,12 +102,21 @@ def food_data():
 def get_one_food_data(id):
     db = get_db()
     if request.method == 'GET':
-        food_data = db["Foods"].find_one({"_id":ObjectId(id)})
-        id = food_data["_id"]
-        food = FOOD(food_data["Name"],food_data["Proteins"],food_data["Carbs"],food_data["Fats"],food_data["Date"],food_data["Calories"])
+        food_data = db["Foods"].find_one({"Food_id": id})   #({"_id":ObjectId(id)})
+        # id = food_data["_id"]
+        food = FOOD(
+            food_data["Name"],
+            food_data["Proteins"],
+            food_data["Carbs"],
+            food_data["Fats"],
+            food_data["Food_id"],
+            food_data["Date"],
+            food_data["Calories"])
+            
 
         food_data_dict = {
-                "Id" : str(id),
+                # "Id" : str(id),
+                "Food_id" : food.id,
                 "Name" : food.name,
                 "Proteins" : food.proteins,
                 "Carbs" : food.carbs,
@@ -110,9 +125,8 @@ def get_one_food_data(id):
                 "Calories": food.calories
             }
         return jsonify(food_data_dict)
-    
     elif request.method == 'DELETE':
-        db["Foods"].delete_many({"_id":ObjectId(id)})
+        db["Foods"].delete_many({"Food_id": id})  #({"_id":ObjectId(id)})
         return jsonify({
             "status": "Data id: "+id+" is deleted"
         })
@@ -123,9 +137,11 @@ def get_one_food_data(id):
   
 
         db["Foods"].update_one(
-            {"_id":ObjectId(id)},
+            # {"_id":ObjectId(id)},
+            {"Food_id": id},
             {
                 "$set":{
+                    # "Food_id": food.set_id,
                     "Name": food.name,
                     "Proteins": food.proteins,
                     "Carbs": food.carbs,
